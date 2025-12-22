@@ -1,4 +1,3 @@
-
 let db = [];
 let charts = {};
 
@@ -215,3 +214,4 @@ function updateMaintenance() {
 function formatBRL(v) { 
     return v.toLocaleString('pt-br', { style: 'currency', currency: 'BRL' }); 
 }
+
