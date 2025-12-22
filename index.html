@@ -8,124 +8,181 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    
     <link rel="stylesheet" href="style.css">
 </head>
-<body>
+<body class="bg-dark text-white">
 
-<div class="sidebar">
-    <div class="text-center mb-4">
-        <h4 class="text-white">BELISIO <span style="color:var(--accent)">EXPRESS</span></h4>
-        <small class="text-muted">Gestão Pro v3.0</small>
-    </div>
+<nav class="navbar navbar-dark bg-dark d-md-none p-3 shadow border-bottom border-secondary">
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#sidebarMenu">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+    <span class="text-white fw-bold ms-2">BELISIO <span style="color:var(--accent)">EXPRESS</span></span>
+</nav>
 
-    <div class="form-check form-switch ms-2 mb-4">
-        <input class="form-check-input" type="checkbox" id="themeToggle">
-        <label class="form-check-label text-muted small" for="themeToggle">Modo Claro</label>
-    </div>
-
-    <label class="filter-label">Filtrar Período</label>
-    <input type="date" id="dateStart" class="form-control form-control-sm mb-1" onchange="applyFilters()">
-    <input type="date" id="dateEnd" class="form-control form-control-sm mb-3" onchange="applyFilters()">
-
-    <label class="filter-label">Filtros Ativos</label>
-    <select id="fMotorista" class="form-select form-select-sm mb-2" onchange="applyFilters()"><option value="all">Motoristas</option></select>
-    <select id="fPlaca" class="form-select form-select-sm mb-3" onchange="applyFilters()"><option value="all">Placas</option></select>
-
-    <div class="mt-4">
-        <h6 class="filter-label">🏆 Top 3 Lucratividade</h6>
-        <div id="ranking-list"><small class="text-muted">Carregando...</small></div>
-    </div>
-
-    <div class="mt-4">
-        <h6 class="filter-label">⛽ Gasto Diesel por Motorista</h6>
-        <div id="diesel-ranking-list">
-            <small class="text-muted">Processando dados...</small>
-        </div>
-    </div>
-
-    <div class="mt-4">
-        <h6 class="filter-label">🛠️ Manutenção (Dias)</h6>
-        <div id="maint-list"><small class="text-muted">Carregando...</small></div>
-    </div>
-</div>
-
-<div class="main-content">
-    <ul class="nav nav-tabs" id="dashboardTabs" role="tablist">
-        <li class="nav-item">
-            <button class="nav-link active" id="geral-tab" data-bs-toggle="tab" data-bs-target="#geral" type="button">Dashboard Geral</button>
-        </li>
-        <li class="nav-item">
-            <button class="nav-link" id="comissoes-tab" data-bs-toggle="tab" data-bs-target="#comissoes" type="button">Extrato de Comissões</button>
-        </li>
-    </ul>
-
-    <div class="tab-content" id="dashboardTabsContent">
-        <div class="tab-pane fade show active" id="geral">
-            <div class="row g-3 mb-4">
-                <div class="col-md"><div class="kpi-card text-center"><span class="metric-title small">Faturamento</span><div class="h4 mt-1 text-info" id="kpi-fat">R$ 0,00</div></div></div>
-                <div class="col-md"><div class="kpi-card text-center"><span class="metric-title small">Diesel</span><div class="h4 mt-1 text-warning" id="kpi-die">R$ 0,00</div></div></div>
-                <div class="col-md"><div class="kpi-card text-center"><span class="metric-title small">Lucro Líquido</span><div class="h4 mt-1" style="color:var(--success)" id="kpi-luc">R$ 0,00</div></div></div>
-                <div class="col-md"><div class="kpi-card text-center"><span class="metric-title small">Margem Média</span><div class="h4 mt-1" id="kpi-mar">0%</div></div></div>
-            </div>
-
-            <div class="row">
-                <div class="col-md-8">
-                    <div class="chart-container">
-                        <h6>Evolução Financeira</h6>
-                        <canvas id="chartEvol" height="140"></canvas>
-                    </div>
+<div class="container-fluid">
+    <div class="row">
+        <nav id="sidebarMenu" class="col-md-3 col-lg-2 d-md-block sidebar collapse shadow">
+            <div class="position-sticky pt-3">
+                <div class="text-center mb-4 d-none d-md-block">
+                    <h4 class="text-white fw-bold">BELISIO <span style="color:var(--accent)">EXPRESS</span></h4>
+                    <small class="text-muted">Gestão Pro v3.0</small>
                 </div>
-                <div class="col-md-4">
-                    <div class="chart-container text-center">
-                        <h6>Distribuição de Custos</h6>
-                        <canvas id="chartCosts" height="230"></canvas>
+
+                <div class="form-check form-switch ms-2 mb-4">
+                    <input class="form-check-input" type="checkbox" id="themeToggle">
+                    <label class="form-check-label text-muted small" for="themeToggle">Modo Claro</label>
+                </div>
+
+                <div class="px-2">
+                    <label class="filter-label">Período</label>
+                    <input type="date" id="dateStart" class="form-control form-control-sm mb-1" onchange="applyFilters()">
+                    <input type="date" id="dateEnd" class="form-control form-control-sm mb-3" onchange="applyFilters()">
+
+                    <label class="filter-label">Filtros Ativos</label>
+                    <select id="fMotorista" class="form-select form-select-sm mb-2" onchange="applyFilters()">
+                        <option value="all">Motoristas</option>
+                    </select>
+                    <select id="fPlaca" class="form-select form-select-sm mb-3" onchange="applyFilters()">
+                        <option value="all">Placas</option>
+                    </select>
+
+                    <div class="mt-4">
+                        <h6 class="filter-label">🛠️ Manutenção (Dias)</h6>
+                        <div id="maint-list" class="small-list">
+                            <small class="text-muted">Carregando...</small>
+                        </div>
                     </div>
                 </div>
             </div>
+        </nav>
 
-            <div class="table-container">
-                <div class="d-flex justify-content-between align-items-center mb-3">
-                    <h6 class="m-0">Log de Operações</h6>
-                    <div id="status-alerts"></div>
+        <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 main-content">
+            
+            <ul class="nav nav-tabs mt-3" id="dashboardTabs" role="tablist">
+                <li class="nav-item">
+                    <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#geral" type="button">Dashboard Geral</button>
+                </li>
+                <li class="nav-item">
+                    <button class="nav-link" data-bs-toggle="tab" data-bs-target="#logistica" type="button">Logística & Rotas</button>
+                </li>
+                <li class="nav-item">
+                    <button class="nav-link" data-bs-toggle="tab" data-bs-target="#custos" type="button">Custos Fixos</button>
+                </li>
+                <li class="nav-item">
+                    <button class="nav-link" data-bs-toggle="tab" data-bs-target="#comissoes" type="button">Comissões</button>
+                </li>
+            </ul>
+
+            <div class="tab-content" id="dashboardTabsContent">
+                
+                <div class="tab-pane fade show active" id="geral">
+                    <div class="row g-2 mb-4 mt-2">
+                        <div class="col-6 col-lg-3"><div class="kpi-card text-center"><small>Faturamento</small><div class="h5 text-info" id="kpi-fat">R$ 0,00</div></div></div>
+                        <div class="col-6 col-lg-3"><div class="kpi-card text-center"><small>Diesel</small><div class="h5 text-warning" id="kpi-die">R$ 0,00</div></div></div>
+                        <div class="col-6 col-lg-3"><div class="kpi-card text-center"><small>Líquido</small><div class="h5 text-success" id="kpi-luc">R$ 0,00</div></div></div>
+                        <div class="col-6 col-lg-3"><div class="kpi-card text-center"><small>Margem</small><div class="h5" id="kpi-mar">0%</div></div></div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-12 col-xl-8 mb-3">
+                            <div class="chart-container">
+                                <h6>Evolução Financeira</h6>
+                                <canvas id="chartEvol"></canvas>
+                            </div>
+                        </div>
+                        <div class="col-12 col-xl-4 mb-3">
+                            <div class="chart-container text-center">
+                                <h6>Distribuição de Custos</h6>
+                                <canvas id="chartCosts"></canvas>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="table-container mt-2">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h6 class="m-0 text-accent">Log Financeiro</h6>
+                            <div id="status-alerts"></div>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="table table-dark table-hover border-secondary" style="font-size: 0.85rem;">
+                                <thead>
+                                    <tr>
+                                        <th>Data</th><th>Motorista</th><th>Placa</th><th>Frete</th><th>Diesel</th><th>Manut.</th><th>Comissão</th><th>Lucro</th><th>Margem</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tableBody"></tbody>
+                            </table>
+                        </div>
+                    </div>
                 </div>
-                <table class="table table-dark table-hover border-secondary" style="font-size: 0.85rem;">
-                    <thead>
-                        <tr>
-                            <th>Data</th>
-                            <th>Motorista</th>
-                            <th>Placa</th>
-                            <th>Origem</th>
-                            <th>Destino</th>
-                            <th>Frete</th>
-                            <th>Diesel</th>
-                            <th>Manut.</th>
-                            <th>Comissão</th>
-                            <th>Lucro</th>
-                            <th>Margem</th>
-                        </tr>
-                    </thead>
-                    <tbody id="tableBody"></tbody>
-                </table>
-            </div>
-        </div>
 
-        <div class="tab-pane fade" id="comissoes">
-            <div class="table-container">
-                <h5 class="mb-4">💰 Resumo de Pagamento por Motorista</h5>
-                <table class="table table-dark table-striped border-secondary">
-                    <thead>
-                        <tr>
-                            <th>Motorista</th>
-                            <th>Total Viagens</th>
-                            <th>Total Frete Gerado</th>
-                            <th>Comissão Acumulada</th>
-                        </tr>
-                    </thead>
-                    <tbody id="comissaoTableBody"></tbody>
-                </table>
+                <div class="tab-pane fade" id="custos">
+                    <div class="row mt-4 g-3">
+                        <div class="col-md-6">
+                            <div class="table-container p-3">
+                                <h6 class="text-info">🚛 Parcelas dos Veículos</h6>
+                                <div class="table-responsive">
+                                    <table class="table table-dark table-striped table-sm">
+                                        <thead>
+                                            <tr><th>Veículo/Placa</th><th>Parcela</th><th>Vencimento</th><th>Status</th></tr>
+                                        </thead>
+                                        <tbody id="tableCustosVeiculos">
+                                            <tr><td>Scania R450 - ABC-1234</td><td>R$ 4.500,00</td><td>Dia 10</td><td><span class="badge bg-success">Em dia</span></td></tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="table-container p-3">
+                                <h6 class="text-warning">🏗️ Aluguéis de Implementos</h6>
+                                <div class="table-responsive">
+                                    <table class="table table-dark table-striped table-sm">
+                                        <thead>
+                                            <tr><th>Implemento</th><th>Custo Aluguel</th><th>Contrato</th><th>Status</th></tr>
+                                        </thead>
+                                        <tbody id="tableCustosAlugueis">
+                                            <tr><td>Sider 28 Pallets</td><td>R$ 2.800,00</td><td>Anual</td><td><span class="badge bg-primary">Ativo</span></td></tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 mt-3 text-center">
+                            <div class="kpi-card p-4 border border-info">
+                                <span>Impacto Mensal Fixo Total: </span>
+                                <span class="h4 text-danger fw-bold ms-2">R$ 7.300,00</span>
+                                <small class="d-block text-muted mt-2">Valores fixos deduzidos mensalmente do fluxo de caixa geral.</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="tab-pane fade" id="logistica">
+                    <div class="chart-container mt-4">
+                        <h6 class="text-center">📊 Quilometragem por Veículo</h6>
+                        <canvas id="chartKmPlaca" height="100"></canvas>
+                    </div>
+                    <div class="table-container mt-3">
+                        <h5 class="mb-3 small">🛣️ Inteligência de Rotas & ANTT</h5>
+                        <div class="table-responsive">
+                            <table class="table table-dark table-striped" id="logisticaTableBody"></table>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="tab-pane fade" id="comissoes">
+                    <div class="table-container mt-4">
+                        <h5 class="mb-2">💰 Extrato de Comissões</h5>
+                        <div id="ranking-lucratividade-comissao" class="ranking-box mb-3"></div>
+                        <div class="table-responsive">
+                            <table class="table table-dark table-striped" id="comissaoTableBody"></table>
+                        </div>
+                    </div>
+                </div>
+
             </div>
-        </div>
+        </main>
     </div>
 </div>
 
@@ -133,4 +190,5 @@
 <script src="script.js"></script>
 </body>
 </html>
+
 
