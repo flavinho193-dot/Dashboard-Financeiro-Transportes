@@ -1,185 +1,182 @@
-/* Definições de Cores e Variáveis (Padrão Dark) */
+/* ==========================================================================
+   VARIÁVEIS E CORES (PADRÃO DARK)
+   ========================================================================== */
 :root { 
     --bg: #0d1117; 
     --card: #161b22; 
+    --sidebar-bg: #1e1e26;
     --accent: #58a6ff; 
     --text: #c9d1d9; 
     --border: #30363d; 
     --success: #39d353; 
     --danger: #f85149; 
     --warning: #f1c40f; 
+    --sidebar-width: 280px; /* Largura ideal para os filtros */
 }
 
-/* Configuração Geral */
+/* ==========================================================================
+   MODO CLARO (LIGHT MODE)
+   ========================================================================== */
+body.light-mode {
+    --bg: #f4f7f6;
+    --card: #ffffff;
+    --sidebar-bg: #ffffff;
+    --text: #1a1a1a;
+    --border: #dee2e6;
+    --accent: #007bff;
+}
+
+/* ==========================================================================
+   CONFIGURAÇÃO GERAL
+   ========================================================================== */
 body { 
     background-color: var(--bg); 
     color: var(--text); 
-    font-family: 'Segoe UI', sans-serif; 
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; 
     margin: 0; 
     transition: background-color 0.3s, color 0.3s;
+    font-size: 0.9rem;
+    overflow-x: hidden;
 }
 
-/* Sidebar Fixa */
-.sidebar { 
-    background: #010409; 
-    border-right: 1px solid var(--border); 
-    min-height: 100vh; 
-    padding: 20px; 
-    position: fixed; 
-    width: 280px; 
-    z-index: 100; 
-    height: 100vh; 
+/* ==========================================================================
+   LAYOUT (SIDEBAR E CONTEÚDO PRINCIPAL)
+   ========================================================================== */
+
+/* Regras para Desktop (768px ou mais) */
+@media (min-width: 768px) {
+    .sidebar { 
+        position: fixed; 
+        top: 0; 
+        left: 0; 
+        width: var(--sidebar-width); 
+        height: 100vh; 
+        background-color: var(--sidebar-bg); 
+        border-right: 1px solid var(--border); 
+        z-index: 1000; 
+        padding: 20px; 
+        overflow-y: auto; 
+    }
+
+    .main-content { 
+        margin-left: var(--sidebar-width); 
+        padding: 20px; 
+        width: calc(100% - var(--sidebar-width));
+        transition: all 0.3s;
+    }
+}
+
+/* Regras para Mobile (Menor que 768px) */
+@media (max-width: 767.98px) {
+    .sidebar {
+        position: static;
+        width: 100%;
+        height: auto;
+        min-height: auto;
+        border-right: none;
+        border-bottom: 1px solid var(--border);
+        padding: 15px;
+        background-color: var(--sidebar-bg);
+    }
+
+    .main-content {
+        margin-left: 0;
+        padding: 15px;
+        width: 100%;
+    }
+
+    /* Scroll horizontal nas abas para não quebrar o layout */
+    .nav-tabs {
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        white-space: nowrap;
+        -webkit-overflow-scrolling: touch;
+        border-bottom: 1px solid var(--border);
+    }
+}
+
+/* ==========================================================================
+   COMPONENTES (CARDS, TABELAS E GRÁFICOS)
+   ========================================================================== */
+
+.kpi-card, .chart-container, .table-container, .ranking-box { 
+    background: var(--card); 
+    border: 1px solid var(--border); 
+    border-radius: 8px; 
+    padding: 15px; 
+    margin-bottom: 20px;
+    height: 100%; /* Garante que os cards na mesma linha tenham o mesmo tamanho */
+}
+
+/* Tabelas Responsivas */
+.table-responsive { 
+    max-height: 550px; 
     overflow-y: auto; 
-    transition: background-color 0.3s;
 }
 
-/* Conteúdo Principal */
-.main-content { 
-    margin-left: 280px; 
-    padding: 30px; 
-    min-width: 950px; 
+.table {
+    color: var(--text) !important;
+    vertical-align: middle;
 }
 
-/* Abas de Navegação */
-.nav-tabs { 
-    border-bottom: 1px solid var(--border); 
-    margin-bottom: 25px; 
-}
-
+/* Abas (Tabs) */
 .nav-link { 
     color: var(--text); 
     border: none !important; 
+    font-size: 0.85rem;
+    padding: 10px 20px;
+    transition: all 0.2s;
 }
 
 .nav-link.active { 
     background-color: var(--accent) !important; 
-    color: #000 !important; 
+    color: #ffffff !important; 
     font-weight: bold; 
     border-radius: 6px 6px 0 0; 
 }
 
-/* Cards e Containers */
-.kpi-card { 
-    background: var(--card); 
-    border: 1px solid var(--border); 
-    border-radius: 8px; 
-    padding: 15px; 
-    height: 100%; 
-}
-
-.chart-container { 
-    background: var(--card); 
-    padding: 20px; 
-    border-radius: 8px; 
-    border: 1px solid var(--border); 
-    margin-bottom: 20px; 
-}
-
-.table-container { 
-    background: var(--card); 
-    border: 1px solid var(--border); 
-    border-radius: 8px; 
-    padding: 15px; 
-}
-
-/* Estilos de Tabela e Margens */
-.row-critical { 
-    background-color: rgba(248, 81, 73, 0.15) !important; 
-    border-left: 4px solid var(--danger); 
-}
-
-.pos-margem { 
-    color: var(--success); 
-    font-weight: bold; 
-}
-
-.neg-margem { 
-    color: var(--danger); 
-    font-weight: bold; 
-}
-
-/* Formulários e Filtros */
+/* Filtros e Inputs */
 .filter-label { 
     font-size: 0.7rem; 
     text-transform: uppercase; 
-    color: #8b949e; 
-    margin-top: 12px; 
+    color: var(--accent); 
+    margin-top: 15px; 
     display: block; 
     font-weight: bold; 
+    letter-spacing: 0.5px;
 }
 
 .form-control, .form-select { 
-    background-color: #0d1117; 
+    background-color: var(--bg); 
     border: 1px solid var(--border); 
-    color: white; 
+    color: var(--text) !important; 
     font-size: 0.85rem; 
 }
 
-/* Ranking e Listas */
+.form-control:focus, .form-select:focus {
+    background-color: var(--bg);
+    border-color: var(--accent);
+    box-shadow: 0 0 0 0.2rem rgba(88, 166, 255, 0.25);
+}
+
+.small-list {
+    font-size: 0.85rem;
+    color: #888;
+}
+
+/* Elementos de Feedback Visual */
+.pos-margem { color: var(--success); font-weight: bold; }
+.neg-margem { color: var(--danger); font-weight: bold; }
+
 .ranking-item { 
     display: flex; 
     justify-content: space-between; 
-    padding: 6px 0; 
+    padding: 8px 0; 
     border-bottom: 1px solid var(--border); 
-    font-size: 0.8rem; 
+    font-size: 0.85rem; 
 }
 
-.comissao-total { 
-    font-weight: bold; 
-    color: #a371f7; 
-    font-size: 1.1rem; 
-}
-
-/* ---------------------------------------------------
-   REGRAS PARA O MODO CLARO (LIGHT MODE)
---------------------------------------------------- */
-
-body.light-mode {
-    background-color: #f4f7f6;
-    color: #1a1a1a;
-}
-
-body.light-mode .sidebar {
-    background-color: #ffffff;
-    border-right: 1px solid #dee2e6;
-}
-
-body.light-mode .sidebar h4 {
-    color: #1a1a1a !important;
-}
-
-body.light-mode .kpi-card, 
-body.light-mode .chart-container, 
-body.light-mode .table-container {
-    background-color: #ffffff;
-    color: #1a1a1a;
-    border: 1px solid #dee2e6;
-}
-
-body.light-mode .table {
-    color: #1a1a1a !important;
-}
-
-body.light-mode .table-dark {
-    background-color: #ffffff;
-    border-color: #dee2e6;
-}
-
-body.light-mode .form-control, 
-body.light-mode .form-select {
-    background-color: #ffffff;
-    border: 1px solid #ced4da;
-    color: #1a1a1a;
-}
-
-body.light-mode .filter-label {
-    color: #6c757d;
-}
-
-body.light-mode .ranking-item {
-    border-bottom: 1px solid #dee2e6;
-}
-
-body.light-mode .nav-link:not(.active) {
-    color: #6c757d;
+/* Gráficos */
+canvas {
+    max-width: 100% !important;
 }
