@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Belisio Express - Command Center v3.0</title>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="sidebar">
+    <div class="text-center mb-4">
+        <h4 class="text-white">BELISIO <span style="color:var(--accent)">EXPRESS</span></h4>
+        <small class="text-muted">Gestão Pro v3.0</small>
+    </div>
+
+    <label class="filter-label">1. Importar Dados</label>
+    <input type="file" id="fileInput" class="form-control form-control-sm mb-3" accept=".xlsx">
+    
+    <hr class="border-secondary">
+
+    <label class="filter-label">Filtrar Período</label>
+    <input type="date" id="dateStart" class="form-control form-control-sm mb-1" onchange="applyFilters()">
+    <input type="date" id="dateEnd" class="form-control form-control-sm mb-3" onchange="applyFilters()">
+
+    <label class="filter-label">Filtros Ativos</label>
+    <select id="fMotorista" class="form-select form-select-sm mb-2" onchange="applyFilters()"><option value="all">Motoristas</option></select>
+    <select id="fPlaca" class="form-select form-select-sm mb-3" onchange="applyFilters()"><option value="all">Placas</option></select>
+
+    <div class="mt-4">
+        <h6 class="filter-label">🏆 Top 3 Lucratividade</h6>
+        <div id="ranking-list"><small class="text-muted">Aguardando...</small></div>
+    </div>
+
+    <div class="mt-4">
+        <h6 class="filter-label">🛠️ Manutenção (Dias)</h6>
+        <div id="maint-list"><small class="text-muted">Aguardando...</small></div>
+    </div>
+</div>
+
+<div class="main-content">
+    <ul class="nav nav-tabs" id="dashboardTabs" role="tablist">
+        <li class="nav-item">
+            <button class="nav-link active" id="geral-tab" data-bs-toggle="tab" data-bs-target="#geral" type="button">Dashboard Geral</button>
+        </li>
+        <li class="nav-item">
+            <button class="nav-link" id="comissoes-tab" data-bs-toggle="tab" data-bs-target="#comissoes" type="button">Extrato de Comissões</button>
+        </li>
+    </ul>
+
+    <div class="tab-content" id="dashboardTabsContent">
+        <div class="tab-pane fade show active" id="geral">
+            <div class="row g-3 mb-4">
+                <div class="col-md"><div class="kpi-card text-center"><span class="metric-title small">Faturamento</span><div class="h4 mt-1 text-info" id="kpi-fat">R$ 0,00</div></div></div>
+                <div class="col-md"><div class="kpi-card text-center"><span class="metric-title small">Diesel</span><div class="h4 mt-1 text-warning" id="kpi-die">R$ 0,00</div></div></div>
+                <div class="col-md"><div class="kpi-card text-center"><span class="metric-title small">Lucro Líquido</span><div class="h4 mt-1" style="color:var(--success)" id="kpi-luc">R$ 0,00</div></div></div>
+                <div class="col-md"><div class="kpi-card text-center"><span class="metric-title small">Margem Média</span><div class="h4 mt-1" id="kpi-mar">0%</div></div></div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-8">
+                    <div class="chart-container">
+                        <h6>Evolução Financeira</h6>
+                        <canvas id="chartEvol" height="140"></canvas>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="chart-container text-center">
+                        <h6>Distribuição de Custos</h6>
+                        <canvas id="chartCosts" height="230"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <div class="table-container">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h6 class="m-0">Log de Operações</h6>
+                    <div id="status-alerts"></div>
+                </div>
+                <table class="table table-dark table-hover border-secondary" style="font-size: 0.85rem;">
+                    <thead>
+                        <tr>
+                            <th>Data</th><th>Motorista</th><th>Placa</th><th>Frete</th><th>Diesel</th><th>Manut.</th><th>Comissão</th><th>Lucro</th><th>Margem</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tableBody"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="tab-pane fade" id="comissoes">
+            <div class="table-container">
+                <h5 class="mb-4">💰 Resumo de Pagamento por Motorista</h5>
+                <table class="table table-dark table-striped border-secondary">
+                    <thead>
+                        <tr>
+                            <th>Motorista</th>
+                            <th>Total Viagens</th>
+                            <th>Total Frete Gerado</th>
+                            <th>Comissão Acumulada</th>
+                        </tr>
+                    </thead>
+                    <tbody id="comissaoTableBody"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="script.js"></script>
+</body>
+</html>
