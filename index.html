@@ -19,11 +19,6 @@
         <small class="text-muted">Gestão Pro v3.0</small>
     </div>
 
-    <label class="filter-label">1. Importar Dados</label>
-    <input type="file" id="fileInput" class="form-control form-control-sm mb-3" accept=".xlsx">
-    
-    <hr class="border-secondary">
-
     <label class="filter-label">Filtrar Período</label>
     <input type="date" id="dateStart" class="form-control form-control-sm mb-1" onchange="applyFilters()">
     <input type="date" id="dateEnd" class="form-control form-control-sm mb-3" onchange="applyFilters()">
@@ -34,12 +29,12 @@
 
     <div class="mt-4">
         <h6 class="filter-label">🏆 Top 3 Lucratividade</h6>
-        <div id="ranking-list"><small class="text-muted">Aguardando...</small></div>
+        <div id="ranking-list"><small class="text-muted">Carregando dados...</small></div>
     </div>
 
     <div class="mt-4">
         <h6 class="filter-label">🛠️ Manutenção (Dias)</h6>
-        <div id="maint-list"><small class="text-muted">Aguardando...</small></div>
+        <div id="maint-list"><small class="text-muted">Carregando dados...</small></div>
     </div>
 </div>
 
@@ -85,7 +80,17 @@
                 <table class="table table-dark table-hover border-secondary" style="font-size: 0.85rem;">
                     <thead>
                         <tr>
-                            <th>Data</th><th>Motorista</th><th>Placa</th><th>Frete</th><th>Diesel</th><th>Manut.</th><th>Comissão</th><th>Lucro</th><th>Margem</th>
+                            <th>Data</th>
+                            <th>Motorista</th>
+                            <th>Placa</th>
+                            <th>Origem</th>
+                            <th>Destino</th>
+                            <th>Frete</th>
+                            <th>Diesel</th>
+                            <th>Manut.</th>
+                            <th>Comissão</th>
+                            <th>Lucro</th>
+                            <th>Margem</th>
                         </tr>
                     </thead>
                     <tbody id="tableBody"></tbody>
