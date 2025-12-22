@@ -1,21 +1,36 @@
 let db = [];
 let charts = {};
 
-document.getElementById('fileInput').addEventListener('change', function(e) {
-    const reader = new FileReader();
-    reader.onload = (event) => {
-        const data = new Uint8Array(event.target.result);
-        const workbook = XLSX.read(data, { type: 'array' });
-        db = XLSX.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[0]], { defval: 0 }).map(row => {
+async function loadAutoData() {
+    const csvUrl = 'dados.csv'; // Nome exato do seu arquivo
+    try {
+        const response = await fetch(csvUrl);
+        if (!response.ok) throw new Error("Arquivo não encontrado");
+        
+        const csvText = await response.text();
+        
+        // Configuração para ler PONTO E VÍRGULA (;) que o Excel brasileiro gera
+        const workbook = XLSX.read(csvText, { type: 'string', FS: ";" }); 
+        const json = XLSX.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[0]], { defval: 0 });
+        
+        db = json.map(row => {
             let r = {};
-            for (let key in row) r[key.toLowerCase().trim().normalize("NFD").replace(/[\u0300-\u036f]/g, "")] = row[key];
+            for (let key in row) {
+                // Remove acentos (MANUTENÇÃO vira manutencao) para bater com o resto do código
+                r[key.toLowerCase().trim().normalize("NFD").replace(/[\u0300-\u036f]/g, "")] = row[key];
+            }
             return r;
         });
+
         populateFilters();
         applyFilters();
-    };
-    reader.readAsArrayBuffer(e.target.files[0]);
-});
+    } catch (error) {
+        console.error("Erro:", error);
+    }
+}
+
+// Aciona o carregamento automático assim que a página abre
+window.onload = loadAutoData;
 
 function populateFilters() {
     const getList = (f) => [...new Set(db.map(i => i[f]))].sort();
