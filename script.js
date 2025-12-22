@@ -1,41 +1,48 @@
+
+
 let db = [];
 let charts = {};
 
+// Função para carregar os dados diretamente do Google Sheets
 async function loadAutoData() {
-    const csvUrl = 'dados.csv'; // Nome exato do seu arquivo
+    const csvUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSjNb11bcijL_wpJ8JM6KB8tDih5-34uXxJFyFVC7_pF8PxtoB-_ekFPVpPP44BoodHfavnPIuHi6Mt/pub?output=csv'; 
+    
     try {
         const response = await fetch(csvUrl);
-        if (!response.ok) throw new Error("Arquivo não encontrado");
+        if (!response.ok) throw new Error("Não foi possível ler a planilha do Google.");
         
         const csvText = await response.text();
         
-        // Configuração para ler PONTO E VÍRGULA (;) que o Excel brasileiro gera
-        const workbook = XLSX.read(csvText, { type: 'string', FS: ";" }); 
+        // Lê o CSV do Google Sheets
+        const workbook = XLSX.read(csvText, { type: 'string' }); 
         const json = XLSX.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[0]], { defval: 0 });
         
-        db = json.map(row => {
+        // Filtra linhas vazias e normaliza as colunas
+        db = json.filter(row => row.DATA || row.MOTORISTA).map(row => {
             let r = {};
             for (let key in row) {
-                // Remove acentos (MANUTENÇÃO vira manutencao) para bater com o resto do código
-                r[key.toLowerCase().trim().normalize("NFD").replace(/[\u0300-\u036f]/g, "")] = row[key];
+                // Remove acentos e espaços para garantir que o cálculo funcione
+                let normalizedKey = key.toLowerCase().trim().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+                r[normalizedKey] = row[key];
             }
             return r;
         });
 
         populateFilters();
         applyFilters();
+        console.log("Dashboard conectado com sucesso!");
     } catch (error) {
-        console.error("Erro:", error);
+        console.error("Erro na conexão:", error);
     }
 }
 
-// Aciona o carregamento automático assim que a página abre
 window.onload = loadAutoData;
 
 function populateFilters() {
     const getList = (f) => [...new Set(db.map(i => i[f]))].sort();
     const fill = (id, list) => {
         const el = document.getElementById(id);
+        if(!el) return;
         el.innerHTML = '<option value="all">Todos</option>';
         list.forEach(i => { if(i) el.innerHTML += `<option value="${i}">${i}</option>`; });
     };
@@ -114,17 +121,12 @@ function renderComissoes(data) {
     });
 
     const tbody = document.getElementById('comissaoTableBody');
-    tbody.innerHTML = "";
-    
-    Object.entries(comissoesPorMotorista).forEach(([nome, info]) => {
-        tbody.innerHTML += `
-            <tr>
-                <td><b>${nome}</b></td>
-                <td>${info.viagens}</td>
-                <td>${formatBRL(info.freteTotal)}</td>
-                <td class="comissao-total">${formatBRL(info.comissaoTotal)}</td>
-            </tr>`;
-    });
+    if(tbody) {
+        tbody.innerHTML = "";
+        Object.entries(comissoesPorMotorista).forEach(([nome, info]) => {
+            tbody.innerHTML += `<tr><td><b>${nome}</b></td><td>${info.viagens}</td><td>${formatBRL(info.freteTotal)}</td><td class="comissao-total">${formatBRL(info.comissaoTotal)}</td></tr>`;
+        });
+    }
 }
 
 function updateCharts(data, t) {
