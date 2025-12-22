@@ -1,0 +1,23 @@
+﻿ID;DATA;MOTORISTA;PLACA;ORIGEM;DESTINO;FRETE;DIESEL;PEDAGIOS;MANUTENÇÃO;COMISSÕES;LUCRO;MARGEM
+BE001;1/12;Emanuel;PKP8B73;Contagem -MG;Itapetininga -SP;3100;1800;0;0;500;;
+BE002;2/12;Emanuel;PKP8B73;São Bernado - SP;Contagem - MG;3550;1200;0;0;450;;
+BE003;2/12;Jhonatan;GEZ2C04;Louveira -SP;Curitiba -CB;3100;2445;0;0;310;345;0%
+BE004;3/12;Emanuel;PKP8B73;Contagem -MG;Itapetininga -SP;3100;1400;0;0;350;;
+BE005;3/12;Jhonatan;GEZ2C04;Joinville -SC;Betim -MG;7670;1700;0;0;767;5203;0%
+BE006;4/12;Emanuel;PKP8B73;São Bernado - SP;Contagem - MG;3550;1000;0;0;450;;
+BE007;4/12;Jhonatan;GEZ2C04;Sete Lagoas -MG;Louveira -SP;3100;1700;0;0;310;1400;0%
+BE008;5/12;Jhonatan;GEZ2C04;Louveira -SP;Curitiba -CB;3100;1700;0;0;310;1400;0%
+BE009;6/12;Emanuel;PKP8B73;Contagem -MG;Zona Sul  -SP;2450;0;0;0;350;;
+BE010;6/12;Jhonatan;GEZ2C04;Joinville -SC;Betim -MG;7670;2000;0;0;767;5670;0%
+BE011;7/12;Fabio;PKP8B73;Cajamar -SP;Nova Lima -MG;3550;1000;0;0;0;;
+BE012;8/12;Emanuel;PKP8B73;Guarulhos -SP;Contagem - MG;3450;1000;0;0;450;;
+BE013;8/12;Jhonatan;GEZ2C04;Betim -MG;Curitiba -CB;5000;2000;0;0;500;3000;0%
+BE014;9/12;Emanuel;PKP8B73;Betim -MG;Mooca -SP;2450;1100;0;0;350;;
+BE015;10/12;Jhonatan;GEZ2C04;Joinville -SC;Betim -MG;7670;2000;0;0;767;5670;0%
+BE016;11/12;Emanuel;PKP8B73;Cajamar -SP;Curitiba -CB;2770;1400;0;0;350;;
+BE017;12/12;Jhonatan;GEZ2C04;Sete Lagoas -MG;Louveira -SP;3100;1000;0;0;310;0;0%
+BE018;13/12;Emanuel;PKP8B73;Guarulhos -SP;Contagem - MG;3550;1500;0;0;450;0;
+BE019;14/12;Emanuel;PKP8B73;Guarulhos -SP;Vespasiano -MG;3550;1600;0;0;450;0;
+;;;;;;;;;;;;
+;;;;;;;;;;;;
+;;;;;;;;;;;;
