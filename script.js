@@ -1,9 +1,8 @@
 let db = [];
 let charts = {};
 
-// Função para carregar os dados diretamente do Google Sheets
+// 1. Função para carregar os dados diretamente do Google Sheets
 async function loadAutoData() {
-    // Link da sua planilha publicado como CSV
     const csvUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSjNb11bcijL_wpJ8JM6KB8tDih5-34uXxJFyFVC7_pF8PxtoB-_ekFPVpPP44BoodHfavnPIuHi6Mt/pub?output=csv'; 
     
     try {
@@ -16,7 +15,7 @@ async function loadAutoData() {
         const workbook = XLSX.read(csvText, { type: 'string' }); 
         const json = XLSX.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[0]], { defval: 0 });
         
-        // Filtra linhas vazias e normaliza as colunas (tira acentos e espaços)
+        // Filtra linhas vazias e normaliza as colunas (remove acentos e espaços)
         db = json.filter(row => row.DATA || row.MOTORISTA).map(row => {
             let r = {};
             for (let key in row) {
@@ -28,15 +27,16 @@ async function loadAutoData() {
 
         populateFilters();
         applyFilters();
-        console.log("Dashboard conectado com sucesso!");
+        console.log("Dashboard Belisio Express conectado!");
     } catch (error) {
         console.error("Erro na conexão:", error);
     }
 }
 
-// Inicia o sistema ao carregar a página
+// Inicia o sistema ao abrir a página
 window.onload = loadAutoData;
 
+// 2. Preencher os filtros de Motorista e Placa
 function populateFilters() {
     const getList = (f) => [...new Set(db.map(i => i[f]))].sort();
     const fill = (id, list) => {
@@ -49,6 +49,7 @@ function populateFilters() {
     fill('fPlaca', getList('placa'));
 }
 
+// 3. Aplicar Filtros (Data, Motorista e Placa)
 function applyFilters() {
     const m = document.getElementById('fMotorista').value;
     const p = document.getElementById('fPlaca').value;
@@ -69,8 +70,10 @@ function applyFilters() {
 
     render(filtered);
     renderComissoes(filtered);
+    renderGastoDiesel(filtered); // Chamada integrada aqui
 }
 
+// 4. Renderizar Tabela Principal e KPIs
 function render(data) {
     let t = { fat: 0, die: 0, com: 0, luc: 0, man: 0 };
     const tbody = document.getElementById('tableBody');
@@ -78,7 +81,6 @@ function render(data) {
     let criticalCount = 0;
 
     data.forEach(i => {
-        // Conversão de valores numéricos
         const f = parseFloat(i.frete || 0);
         const d = parseFloat(i.diesel || 0);
         const c = parseFloat(i.comissoes || 0);
@@ -88,13 +90,11 @@ function render(data) {
         const margem = f > 0 ? (lucro / f) * 100 : 0;
         const percDiesel = f > 0 ? (d / f) * 100 : 0;
         
-        // Alerta: Diesel > 45% do frete ou Manutenção maior que o lucro da viagem
         const isCritical = (percDiesel > 45 || m > lucro);
         if(isCritical) criticalCount++;
 
         t.fat += f; t.die += d; t.com += c; t.luc += lucro; t.man += m;
 
-        // Construção da linha da tabela com Origem e Destino
         tbody.innerHTML += `
             <tr class="${isCritical ? 'row-critical' : ''}">
                 <td>${i.data || '-'}</td>
@@ -113,18 +113,18 @@ function render(data) {
             </tr>`;
     });
 
-    // Atualiza os KPIs (cartões do topo)
     document.getElementById('kpi-fat').innerText = formatBRL(t.fat);
     document.getElementById('kpi-die').innerText = formatBRL(t.die);
     document.getElementById('kpi-luc').innerText = formatBRL(t.luc);
     document.getElementById('kpi-mar').innerText = (t.fat > 0 ? (t.luc / t.fat)*100 : 0).toFixed(1) + '%';
-    document.getElementById('status-alerts').innerHTML = criticalCount > 0 ? `<span class="badge bg-danger">${criticalCount} Alertas de Custo</span>` : '';
+    document.getElementById('status-alerts').innerHTML = criticalCount > 0 ? `<span class="badge bg-danger">${criticalCount} Alertas</span>` : '';
 
     updateCharts(data, t);
     updateRanking(data);
     updateMaintenance();
 }
 
+// 5. Renderizar Aba de Comissões
 function renderComissoes(data) {
     const comissoesPorMotorista = {};
     data.forEach(i => {
@@ -152,6 +152,36 @@ function renderComissoes(data) {
     }
 }
 
+// 6. NOVO: Sistema de Gasto de Diesel por Motorista
+function renderGastoDiesel(data) {
+    const gastosPorMotorista = {};
+    
+    data.forEach(i => {
+        const mot = i.motorista || 'Não Identificado';
+        const valorDiesel = parseFloat(i.diesel || 0);
+        
+        if (!gastosPorMotorista[mot]) {
+            gastosPorMotorista[mot] = 0;
+        }
+        gastosPorMotorista[mot] += valorDiesel;
+    });
+
+    const rankingGasto = Object.entries(gastosPorMotorista).sort((a, b) => b[1] - a[1]);
+
+    const list = document.getElementById('diesel-ranking-list');
+    if(list) {
+        list.innerHTML = "";
+        rankingGasto.forEach(([nome, total]) => {
+            list.innerHTML += `
+                <div class="ranking-item">
+                    <span>${nome}</span>
+                    <span class="text-warning" style="font-weight:bold">${formatBRL(total)}</span>
+                </div>`;
+        });
+    }
+}
+
+// 7. Atualizar Gráficos
 function updateCharts(data, t) {
     if(charts.evol) charts.evol.destroy();
     charts.evol = new Chart(document.getElementById('chartEvol'), {
@@ -179,6 +209,7 @@ function updateCharts(data, t) {
     });
 }
 
+// 8. Atualizar Ranking Top 3 Lucro
 function updateRanking(data) {
     const ranks = {};
     data.forEach(i => {
@@ -187,12 +218,15 @@ function updateRanking(data) {
     });
     const sorted = Object.entries(ranks).sort((a,b) => b[1] - a[1]).slice(0, 3);
     const list = document.getElementById('ranking-list');
-    list.innerHTML = "";
-    sorted.forEach(([name, val], idx) => {
-        list.innerHTML += `<div class="ranking-item"><span><b>${idx+1}º</b> ${name}</span> <span>${formatBRL(val)}</span></div>`;
-    });
+    if(list) {
+        list.innerHTML = "";
+        sorted.forEach(([name, val], idx) => {
+            list.innerHTML += `<div class="ranking-item"><span><b>${idx+1}º</b> ${name}</span> <span>${formatBRL(val)}</span></div>`;
+        });
+    }
 }
 
+// 9. Atualizar Dias sem Manutenção
 function updateMaintenance() {
     const plates = {};
     const today = new Date();
@@ -203,15 +237,33 @@ function updateMaintenance() {
         }
     });
     const list = document.getElementById('maint-list');
-    list.innerHTML = "";
-    Object.entries(plates).forEach(([placa, data]) => {
-        const diffDays = Math.floor((today - data) / (1000 * 60 * 60 * 24));
-        const color = diffDays > 30 ? 'bg-danger' : 'bg-success';
-        list.innerHTML += `<div class="ranking-item"><span>${placa}</span> <span class="badge ${color}">${diffDays} dias</span></div>`;
-    });
+    if(list) {
+        list.innerHTML = "";
+        Object.entries(plates).forEach(([placa, data]) => {
+            const diffDays = Math.floor((today - data) / (1000 * 60 * 60 * 24));
+            const color = diffDays > 30 ? 'bg-danger' : 'bg-success';
+            list.innerHTML += `<div class="ranking-item"><span>${placa}</span> <span class="badge ${color}">${diffDays} dias</span></div>`;
+        });
+    }
 }
 
+// 10. Auxiliares e Troca de Tema
 function formatBRL(v) { 
     return v.toLocaleString('pt-br', { style: 'currency', currency: 'BRL' }); 
 }
+
+const themeToggle = document.getElementById('themeToggle');
+if(themeToggle) {
+    themeToggle.addEventListener('change', () => {
+        document.body.classList.toggle('light-mode');
+        const isLight = document.body.classList.contains('light-mode');
+        localStorage.setItem('theme', isLight ? 'light' : 'dark');
+    });
+}
+
+if (localStorage.getItem('theme') === 'light' && themeToggle) {
+    themeToggle.checked = true;
+    document.body.classList.add('light-mode');
+}
+
 
