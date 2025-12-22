@@ -1,10 +1,10 @@
 
-
 let db = [];
 let charts = {};
 
 // Função para carregar os dados diretamente do Google Sheets
 async function loadAutoData() {
+    // Link da sua planilha publicado como CSV
     const csvUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSjNb11bcijL_wpJ8JM6KB8tDih5-34uXxJFyFVC7_pF8PxtoB-_ekFPVpPP44BoodHfavnPIuHi6Mt/pub?output=csv'; 
     
     try {
@@ -17,11 +17,10 @@ async function loadAutoData() {
         const workbook = XLSX.read(csvText, { type: 'string' }); 
         const json = XLSX.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[0]], { defval: 0 });
         
-        // Filtra linhas vazias e normaliza as colunas
+        // Filtra linhas vazias e normaliza as colunas (tira acentos e espaços)
         db = json.filter(row => row.DATA || row.MOTORISTA).map(row => {
             let r = {};
             for (let key in row) {
-                // Remove acentos e espaços para garantir que o cálculo funcione
                 let normalizedKey = key.toLowerCase().trim().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
                 r[normalizedKey] = row[key];
             }
@@ -36,6 +35,7 @@ async function loadAutoData() {
     }
 }
 
+// Inicia o sistema ao carregar a página
 window.onload = loadAutoData;
 
 function populateFilters() {
@@ -79,24 +79,42 @@ function render(data) {
     let criticalCount = 0;
 
     data.forEach(i => {
-        const f = parseFloat(i.frete || 0), d = parseFloat(i.diesel || 0), c = parseFloat(i.comissoes || 0), m = parseFloat(i.manutencao || 0);
+        // Conversão de valores numéricos
+        const f = parseFloat(i.frete || 0);
+        const d = parseFloat(i.diesel || 0);
+        const c = parseFloat(i.comissoes || 0);
+        const m = parseFloat(i.manutencao || 0);
+        
         const lucro = f - d - c - m;
         const margem = f > 0 ? (lucro / f) * 100 : 0;
         const percDiesel = f > 0 ? (d / f) * 100 : 0;
+        
+        // Alerta: Diesel > 45% do frete ou Manutenção maior que o lucro da viagem
         const isCritical = (percDiesel > 45 || m > lucro);
         if(isCritical) criticalCount++;
 
         t.fat += f; t.die += d; t.com += c; t.luc += lucro; t.man += m;
 
+        // Construção da linha da tabela com Origem e Destino
         tbody.innerHTML += `
             <tr class="${isCritical ? 'row-critical' : ''}">
-                <td>${i.data || '-'}</td><td>${i.motorista || '-'}</td><td>${i.placa || '-'}</td>
-                <td>${formatBRL(f)}</td><td>${formatBRL(d)}</td><td>${formatBRL(m)}</td>
-                <td>${formatBRL(c)}</td><td style="color:var(--success)">${formatBRL(lucro)}</td>
-                <td class="${margem >= 15 ? 'pos-margem' : 'neg-margem'}">${margem.toFixed(1)}% ${isCritical ? '⚠️' : ''}</td>
+                <td>${i.data || '-'}</td>
+                <td>${i.motorista || '-'}</td>
+                <td>${i.placa || '-'}</td>
+                <td>${i.origem || '-'}</td>
+                <td>${i.destino || '-'}</td>
+                <td>${formatBRL(f)}</td>
+                <td>${formatBRL(d)}</td>
+                <td>${formatBRL(m)}</td>
+                <td>${formatBRL(c)}</td>
+                <td style="color:var(--success)">${formatBRL(lucro)}</td>
+                <td class="${margem >= 15 ? 'pos-margem' : 'neg-margem'}">
+                    ${margem.toFixed(1)}% ${isCritical ? '⚠️' : ''}
+                </td>
             </tr>`;
     });
 
+    // Atualiza os KPIs (cartões do topo)
     document.getElementById('kpi-fat').innerText = formatBRL(t.fat);
     document.getElementById('kpi-die').innerText = formatBRL(t.die);
     document.getElementById('kpi-luc').innerText = formatBRL(t.luc);
@@ -124,7 +142,13 @@ function renderComissoes(data) {
     if(tbody) {
         tbody.innerHTML = "";
         Object.entries(comissoesPorMotorista).forEach(([nome, info]) => {
-            tbody.innerHTML += `<tr><td><b>${nome}</b></td><td>${info.viagens}</td><td>${formatBRL(info.freteTotal)}</td><td class="comissao-total">${formatBRL(info.comissaoTotal)}</td></tr>`;
+            tbody.innerHTML += `
+                <tr>
+                    <td><b>${nome}</b></td>
+                    <td>${info.viagens}</td>
+                    <td>${formatBRL(info.freteTotal)}</td>
+                    <td class="comissao-total">${formatBRL(info.comissaoTotal)}</td>
+                </tr>`;
         });
     }
 }
@@ -135,8 +159,10 @@ function updateCharts(data, t) {
         type: 'line',
         data: {
             labels: data.map(i => i.data),
-            datasets: [{ label: 'Frete', data: data.map(i => i.frete), borderColor: '#58a6ff', tension: 0.3 },
-                       { label: 'Custos', data: data.map(i => (parseFloat(i.diesel)+parseFloat(i.manutencao))), borderColor: '#f85149', tension: 0.3 }]
+            datasets: [
+                { label: 'Frete', data: data.map(i => i.frete), borderColor: '#58a6ff', tension: 0.3 },
+                { label: 'Custos', data: data.map(i => (parseFloat(i.diesel)+parseFloat(i.manutencao))), borderColor: '#f85149', tension: 0.3 }
+            ]
         }
     });
 
@@ -145,7 +171,10 @@ function updateCharts(data, t) {
         type: 'doughnut',
         data: {
             labels: ['Diesel', 'Comissão', 'Manut.', 'Líquido'],
-            datasets: [{ data: [t.die, t.com, t.man, Math.max(0, t.luc)], backgroundColor: ['#f1c40f', '#a371f7', '#f85149', '#39d353'] }]
+            datasets: [{ 
+                data: [t.die, t.com, t.man, Math.max(0, t.luc)], 
+                backgroundColor: ['#f1c40f', '#a371f7', '#f85149', '#39d353'] 
+            }]
         },
         options: { cutout: '70%', plugins: { legend: { position: 'bottom' } } }
     });
@@ -183,4 +212,6 @@ function updateMaintenance() {
     });
 }
 
-function formatBRL(v) { return v.toLocaleString('pt-br', { style: 'currency', currency: 'BRL' }); }
+function formatBRL(v) { 
+    return v.toLocaleString('pt-br', { style: 'currency', currency: 'BRL' }); 
+}
