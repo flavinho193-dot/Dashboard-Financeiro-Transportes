@@ -1,3 +1,4 @@
+
 /* ==========================================================================
    VARIÁVEIS E CORES (PADRÃO DARK)
    ========================================================================== */
@@ -180,3 +181,15 @@ body {
 canvas {
     max-width: 100% !important;
 }
+
+
+
+.chart-container {
+    height: 350px; /* Define uma altura fixa para ambos ficarem iguais */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+
